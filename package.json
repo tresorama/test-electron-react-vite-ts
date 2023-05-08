@@ -1,0 +1,21 @@
+{
+  "name": "test-electron",
+  "version": "1.0.0",
+  "description": "Educational test of Electron",
+  "main": "main/main.js",
+  "author": "Jacopo Marrone <@tresorama> <jacopo.marrone27@gmail.com> (https://github.com/tresorama)",
+  "license": "MIT",
+  "productName": "Test Electron App",
+  "scripts": {
+    "start:dev": "cross-env NODE_ENV=development electronmon ."
+  },
+  "dependencies": {
+    "electron": "^24.2.0",
+    "resize-img": "^2.0.0",
+    "toastify-js": "^1.12.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "electronmon": "^2.0.2"
+  }
+}
