@@ -4,7 +4,7 @@ const { resizeImage } = require('./side-effects/resize-image');
 
 // Define some constants based on current running environment/machine
 const REACT_APP_DEVELOPEMNT_URL = "http://localhost:5173";
-const REACT_APP_PRODUCTION_FILE_PATH = `file://${path.join(__dirname, '../../', 'renderer-react', 'dist', 'index.html')}`;
+const REACT_APP_PRODUCTION_FILE_PATH = path.join(__dirname, '../', 'renderer/dist/index.html');
 const IS_DEVELOPMENT = process.env.NODE_ENV === 'development';
 const isMac = process.platform === 'darwin';
 
@@ -27,20 +27,18 @@ function createMainSecureWindow() {
     }
   });
 
-  // simulateProd: {
-  //   console.log(REACT_APP_PRODUCTION_FILE_PATH);
-  //   w.loadURL(REACT_APP_PRODUCTION_FILE_PATH);
-  //   return;
-  // }
-
   if (IS_DEVELOPMENT) {
     // If we are in development mode we load content from localhost server - vite
-    w.loadURL(REACT_APP_DEVELOPEMNT_URL).catch(console.error);
-    // and open the developer tools
-    w.webContents.openDevTools();
+    w.loadURL(REACT_APP_DEVELOPEMNT_URL)
+      .then(() => w.webContents.openDevTools()) // and open the developer tools
+      .catch(console.error);
+
+
   } else {
     // In all other cases, load the index.html file from the dist folder
-    w.loadURL(REACT_APP_PRODUCTION_FILE_PATH).catch(console.error);
+    // w.loadURL(`file://${REACT_APP_PRODUCTION_FILE_PATH}`);
+    w.loadFile(REACT_APP_PRODUCTION_FILE_PATH)
+      .catch(console.error);
   }
 
 }
