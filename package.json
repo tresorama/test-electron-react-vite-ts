@@ -5,9 +5,14 @@
   "author": "Jacopo Marrone <@tresorama> <jacopo.marrone27@gmail.com> (https://github.com/tresorama)",
   "license": "MIT",
   "private": true,
-  "workspaces": [
-    "apps/*"
-  ],
+  "workspaces": {
+    "packages":[
+      "apps/*"
+    ],
+    "nohoist": [
+      "**electron**"
+    ]
+  },
   "scripts": {
     "dev": "npm-run-all --parallel react:dev electron:dev",
     "react:dev": "cd ./apps/renderer-react && yarn dev",
