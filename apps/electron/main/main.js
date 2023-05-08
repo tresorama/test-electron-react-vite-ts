@@ -3,6 +3,8 @@ const path = require('path');
 const { resizeImage } = require('./side-effects/resize-image');
 
 // Define some constants based on current running environment/machine
+const REACT_APP_DEVELOPEMNT_URL = "http://localhost:5173";
+const REACT_APP_PRODUCTION_FILE_PATH = `file://${path.join(__dirname, '../../', 'renderer-react', 'dist', 'index.html')}`;
 const IS_DEVELOPMENT = process.env.NODE_ENV === 'development';
 const isMac = process.platform === 'darwin';
 
@@ -15,40 +17,31 @@ const resolvePathFromRoot = (endingPath) => path.resolve(__dirname, "../", endin
 // ======================
 
 // handle creation of "windows" of app
-function createMainInsecureWindow() {
-  const w = new BrowserWindow({
-    width: IS_DEVELOPMENT ? 1000 : 700,
-    height: 600,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    }
-  });
-
-  w.loadFile(resolvePathFromRoot("./renderer/screens/index-insecure/index-insecure.html"))
-    .catch(console.error)
-    .then(() => {
-      // (Only on dev) Open DevTools
-      if (IS_DEVELOPMENT) w.webContents.openDevTools();
-    });
-
-}
 function createMainSecureWindow() {
   const w = new BrowserWindow({
     width: IS_DEVELOPMENT ? 1000 : 700,
     height: 600,
     webPreferences: {
       nodeIntegration: true,
-      preload: resolvePathFromRoot('./renderer/screens/index-secure/index-secure-preload.js')
+      preload: resolvePathFromRoot('./renderer/renderer-react-preload.js'),
     }
   });
 
-  w.loadFile(resolvePathFromRoot("./renderer/screens/index-secure/index-secure.html"))
-    .catch(console.error)
-    .then(() => {
-      // (Only on dev) Open DevTools
-      if (IS_DEVELOPMENT) w.webContents.openDevTools();
-    });
+  // simulateProd: {
+  //   console.log(REACT_APP_PRODUCTION_FILE_PATH);
+  //   w.loadURL(REACT_APP_PRODUCTION_FILE_PATH);
+  //   return;
+  // }
+
+  if (IS_DEVELOPMENT) {
+    // If we are in development mode we load content from localhost server - vite
+    w.loadURL(REACT_APP_DEVELOPEMNT_URL).catch(console.error);
+    // and open the developer tools
+    w.webContents.openDevTools();
+  } else {
+    // In all other cases, load the index.html file from the dist folder
+    w.loadURL(REACT_APP_PRODUCTION_FILE_PATH).catch(console.error);
+  }
 
 }
 function createAboutWindow() {
@@ -88,18 +81,16 @@ function implementAppMenu() {
 // 1. When the app starts and is ready...
 app.whenReady().then(() => {
   // Create the Main Windows of this App
-  createMainInsecureWindow();
   createMainSecureWindow();
 
   // Create the Menu
   // tht appear in the OS status bar (top of the screen when app is focused)
-  implementAppMenu();
+  // implementAppMenu();
 
   // In macOS apps generally continue running even without any windows open.
   // Activating the app when no windows are available should open a new one
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createMainInsecureWindow();
       createMainSecureWindow();
     }
   });
